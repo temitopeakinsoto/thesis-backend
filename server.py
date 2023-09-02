@@ -2,9 +2,8 @@ import logging
 import os
 import json
 import time
-from datetime import datetime  # Import the datetime module
+from datetime import datetime  
 import threading
-
 import uuid 
 from flask import Flask, request, jsonify
 import cv2
@@ -12,6 +11,7 @@ from deepface import DeepFace
 import numpy as np
 from flask_cors import CORS
 import base64
+#from pymongo import MongoClient
 
 app = Flask(__name__)
 CORS(app)
@@ -26,7 +26,7 @@ streaming_active = False
 # Emotion timeline data structure
 emotion_timeline = []
 emotion_streams = []
-json_filename = "data.json"
+json_filename = "./data.json"
 
 def video_processing():
     global streaming_active
@@ -57,15 +57,12 @@ def video_processing():
         probability = result[0]['emotion'][emotion]
         txt = f"{emotion} (Probability: {probability:.2f})"
 
-        emotion_timeline.append({'timestamp': timestamp, 'emotion': emotion})
-        print('Hello here')
-
         cv2.putText(resized_frame, txt, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 3)
 
         # Display the frame with emotion
         cv2.imshow('Resized Frame', resized_frame)
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):  # Exit if 'q' is pressed
+        if cv2.waitKey(1) & 0xFF == ord('q'): 
             streaming_active = False
 
     # Release the video capture and close the window
@@ -115,7 +112,6 @@ def analyze_emotion():
             emotion = result[0]['dominant_emotion']
             probability = result[0]['emotion'][emotion]
             emotions_data.append({'frame': image_to_base64(resized_frame), 'emotion': emotion, 'probability': probability})
-            emotion_streams.append({'frame': image_to_base64(resized_frame), 'emotion': emotion, 'probability': probability, time: timestamp})
             print(f"Timestamp: {timestamp}, Emotion: {emotion} ")
 
         except Exception as e:
@@ -147,13 +143,16 @@ def submit_form():
     data['user_id'] = unique_id
 
     # Load existing data from the JSON file (if any)
-    existing_data = []
     if os.path.exists(json_filename):
         with open(json_filename, 'r') as json_file:
             existing_data = json.load(json_file)
-
-    # Append the new form data to the existing data
-    existing_data.append(data)
+    else:
+        existing_data = []
+    try:
+        existing_data.append(data)
+    except Exception as e:
+        str_ms = str(e)
+        print('Error Message: ', str_ms)
 
     # Save the updated data back to the JSON file
     with open(json_filename, 'w') as json_file:
@@ -164,6 +163,7 @@ def submit_form():
         return jsonify(response), 200
     except Exception as e:
         error_message = str(e)
+        print("Error:", error_message)
         return jsonify({"error": error_message}), 500
     
 def format_readable_timestamp(timestamp):
