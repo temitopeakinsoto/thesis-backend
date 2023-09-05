@@ -11,7 +11,6 @@ from deepface import DeepFace
 import numpy as np
 from flask_cors import CORS
 import base64
-#from pymongo import MongoClient
 
 app = Flask(__name__)
 CORS(app)
@@ -19,7 +18,7 @@ CORS(app)
 logging.basicConfig(filename='app.log', level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
-haar_cascade = cv2.CascadeClassifier('../classifier/haar_face.xml')
+haar_cascade = cv2.CascadeClassifier('./classifier/haar_face.xml')
 
 streaming_active = False
 
@@ -27,60 +26,6 @@ streaming_active = False
 emotion_timeline = []
 emotion_streams = []
 json_filename = "./data.json"
-
-def video_processing():
-    global streaming_active
-    video_capture = cv2.VideoCapture(0)
-    haar_cascade = cv2.CascadeClassifier('../classifier/haar_face.xml')
-
-    while streaming_active:
-        ret, frame = video_capture.read()
-
-        # Resize the frame to 1/4 of its original size
-        height, width = frame.shape[:2]
-        new_width = int(width * 0.5)
-        new_height = int(height * 0.5)
-        resized_frame = cv2.resize(frame, (new_width, new_height))
-
-        result = DeepFace.analyze(img_path=resized_frame, actions=['emotion'], enforce_detection=False)
-
-        # Convert video stream to gray
-        gray_video = cv2.cvtColor(resized_frame, cv2.COLOR_BGR2GRAY)
-        faces = haar_cascade.detectMultiScale(gray_video, 1.1, 4)
-
-        # Loop through points numpy array in faces and construct a facial rectangle
-        for (x, y, w, h) in faces:
-            cv2.rectangle(resized_frame, (x, y), (x + w, y + h), (255, 0, 0), 3)
-
-        # Extract dominant emotion and probability
-        emotion = result[0]['dominant_emotion']
-        probability = result[0]['emotion'][emotion]
-        txt = f"{emotion} (Probability: {probability:.2f})"
-
-        cv2.putText(resized_frame, txt, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 3)
-
-        # Display the frame with emotion
-        cv2.imshow('Resized Frame', resized_frame)
-
-        if cv2.waitKey(1) & 0xFF == ord('q'): 
-            streaming_active = False
-
-    # Release the video capture and close the window
-    video_capture.release()
-    cv2.destroyAllWindows()
-
-
-@app.route('/start_streaming', methods=['POST'])
-def start_streaming():
-    global streaming_active
-    if not streaming_active:
-        streaming_active = True
-        video_processing_thread = threading.Thread(target=video_processing)
-        video_processing_thread.start()
-        return "Streaming started", 200
-    else:
-        return "Streaming is already active", 400
-
 
 @app.route('/emotion', methods=['POST'])
 def analyze_emotion():
@@ -112,25 +57,13 @@ def analyze_emotion():
             emotion = result[0]['dominant_emotion']
             probability = result[0]['emotion'][emotion]
             emotions_data.append({'frame': image_to_base64(resized_frame), 'emotion': emotion, 'probability': probability})
-            print(f"Timestamp: {timestamp}, Emotion: {emotion} ")
+            print(f"Timestamp: {format_readable_timestamp(timestamp)}, Emotion: {emotion} ")
 
         except Exception as e:
             print(f'Error processing frame: {e}')
 
     # return jsonify(emotions_data)
     return jsonify(emotions_data)
-
-def image_to_base64(image):
-    _, buffer = cv2.imencode('.jpg', image)
-    base64_frame = base64.b64encode(buffer).decode('utf-8')
-    return base64_frame
-
-@app.route('/get_data', methods=['GET'])
-def get_data():
-    if emotion_streams:
-        return jsonify(emotion_streams)
-    else:
-        return "No Data to be returned", 400
 
 @app.route('/submit_form', methods=['POST'])
 def submit_form():
@@ -166,6 +99,22 @@ def submit_form():
         print("Error:", error_message)
         return jsonify({"error": error_message}), 500
     
+def image_to_base64(image):
+    _, buffer = cv2.imencode('.jpg', image)
+    base64_frame = base64.b64encode(buffer).decode('utf-8')
+    return base64_frame
+
+    
+def format_readable_timestamp(timestamp):
+    dt_object = datetime.fromtimestamp(timestamp)
+    formatted_timestamp = dt_object.strftime('%Y-%b-%d-%H:%M:%S')
+    return formatted_timestamp
+
+def image_to_base64(image):
+    _, buffer = cv2.imencode('.jpg', image)
+    base64_frame = base64.b64encode(buffer).decode('utf-8')
+    return base64_frame
+
 def format_readable_timestamp(timestamp):
     dt_object = datetime.fromtimestamp(timestamp)
     formatted_timestamp = dt_object.strftime('%Y-%b-%d-%H:%M:%S')
