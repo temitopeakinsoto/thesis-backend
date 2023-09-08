@@ -3,7 +3,6 @@ import os
 import json
 import time
 from datetime import datetime  
-import threading
 import uuid 
 from flask import Flask, request, jsonify
 import cv2
@@ -48,7 +47,7 @@ def analyze_emotion():
 
             gray_video = cv2.cvtColor(resized_frame, cv2.COLOR_BGR2GRAY)
             faces = haar_cascade.detectMultiScale(gray_video, 1.1, 7)
-            print(type(resized_frame), resized_frame)
+            #print(type(resized_frame), resized_frame)
 
             for (x, y, w, h) in faces:
                 cv2.rectangle(resized_frame, (x, y), (x + w, y + h), (255, 0, 0), 3)
@@ -114,11 +113,6 @@ def image_to_base64(image):
     _, buffer = cv2.imencode('.jpg', image)
     base64_frame = base64.b64encode(buffer).decode('utf-8')
     return base64_frame
-
-def format_readable_timestamp(timestamp):
-    dt_object = datetime.fromtimestamp(timestamp)
-    formatted_timestamp = dt_object.strftime('%Y-%b-%d-%H:%M:%S')
-    return formatted_timestamp
 
 # Print the emotion timeline
 for entry in emotion_timeline:
