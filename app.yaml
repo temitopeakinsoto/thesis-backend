@@ -1,4 +1,4 @@
-runtime: custom
+runtime: python39
 env: flex
 
 runtime_config:
