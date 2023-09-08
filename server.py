@@ -26,6 +26,10 @@ emotion_timeline = []
 emotion_streams = []
 json_filename = "./data.json"
 
+@app.route('/')
+def hello_world():
+    return 'Welcome to our emotion recognition server!'
+
 @app.route('/emotion', methods=['POST'])
 def analyze_emotion():
     frames = request.files.getlist('frames')
