@@ -1,0 +1,47 @@
+[
+    {
+        "Age": "25-34",
+        "Gender": "Non-binary/Other",
+        "Ethnicity/Race": "Black",
+        "Frequency of e-learning activities": "Weekly",
+        "Highest level of education": "High School or Below",
+        "Overall experience rating": 1,
+        "Comfort level rating": 1,
+        "Accuracy rating": 1,
+        "Recognized emotions": "",
+        "Misinterpreted emotions": "",
+        "Technical issues": "YES",
+        "Technical issue details": "",
+        "Feedback timeliness": "YES"
+    },
+    {
+        "Age": "35-44",
+        "Gender": "Female",
+        "Ethnicity/Race": "White",
+        "Frequency of e-learning activities": "Weekly",
+        "Highest level of education": "High School or Below",
+        "Overall experience rating": 1,
+        "Comfort level rating": 1,
+        "Accuracy rating": 1,
+        "Recognized emotions": "",
+        "Misinterpreted emotions": "",
+        "Technical issues": "YES",
+        "Technical issue details": "",
+        "Feedback timeliness": "YES"
+    },
+    {
+        "Age": "18-24",
+        "Gender": "Female",
+        "Ethnicity/Race": "White",
+        "Frequency of e-learning activities": "Weekly",
+        "Highest level of education": "High School or Below",
+        "Overall experience rating": 3,
+        "Comfort level rating": 3,
+        "Accuracy rating": 3,
+        "Recognized emotions": "",
+        "Misinterpreted emotions": "",
+        "Technical issues": "YES",
+        "Technical issue details": "",
+        "Feedback timeliness": "YES"
+    }
+]
